@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.module.js';
 
 // Sahne ve Kamera
 const scene = new THREE.Scene();
@@ -17,7 +17,7 @@ scoreElement.style.top = '10px';
 scoreElement.style.left = '10px';
 scoreElement.style.color = 'white';
 scoreElement.style.fontSize = '24px';
-scoreElement.innerHTML = "Score:" + score;
+scoreElement.innerHTML = "Score: " + score;
 document.body.appendChild(scoreElement);
 
 // Zemin oluşturma
@@ -127,6 +127,7 @@ function checkCollision() {
             spheres.splice(i, 1); // Küreyi arrayden kaldır
             i--; // Küre array boyutu değiştiği için index ayarlaması
             score += 100; // Puanı arttır
+            scoreElement.innerHTML = "Score: " + score; // Puanı güncelle
             flashCubeColor(); // Renk değiştir ve yanıp sönmeyi başlat
         }
     }
