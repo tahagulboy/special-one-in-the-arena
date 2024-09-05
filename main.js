@@ -20,10 +20,6 @@ scoreElement.style.fontSize = '24px';
 scoreElement.innerHTML = "Score: " + score;
 document.body.appendChild(scoreElement);
 
-// Küpün başlangıç boyutunu belirle
-const initialCubeSize = 1;
-let cubeSize = initialCubeSize;
-
 // Zemin oluşturma
 const geometry = new THREE.PlaneGeometry(100, 100);
 const material = new THREE.MeshBasicMaterial({ color: 0x228B22, side: THREE.DoubleSide });
@@ -32,10 +28,10 @@ plane.rotation.x = Math.PI / 2; // Zemin yatay olsun
 scene.add(plane);
 
 // Blok oluşturma
-const boxGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
 const cube = new THREE.Mesh(boxGeometry, boxMaterial);
-cube.position.y = cubeSize / 2; // Blok zeminin üstünde olsun
+cube.position.y = 0.5; // Blok zeminin üstünde olsun
 scene.add(cube);
 
 // Rastgele yuvarlak bloklar oluşturma
@@ -136,11 +132,6 @@ function checkCollision() {
             i--; // Küre array boyutu değiştiği için index ayarlaması
             score += 100; // Puanı arttır
             scoreElement.innerHTML = "Score: " + score; // Puanı güncelle
-            
-            // Küpün boyutunu artır
-            cubeSize += 0.1; // Küp boyutunu 0.1 artır
-            cube.scale.set(cubeSize / initialCubeSize, cubeSize / initialCubeSize, cubeSize / initialCubeSize); // Küp ölçeğini güncelle
-            
             flashCubeColor(); // Renk değiştir ve yanıp sönmeyi başlat
         }
     }
