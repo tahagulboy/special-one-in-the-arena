@@ -15,6 +15,27 @@ let velocityY = 0; // Zıplama hızı
 const gravity = -0.005; // Yerçekimi kuvvetini azalt
 const jumpStrength = 0.15; // Zıplama kuvvetini biraz düşür
 
+// Başlangıçtaki mermi sayısı
+let bullets = 10; // Başlangıç mermi sayısı
+const maxBullets = 20; // Maksimum mermi sınırı
+
+// Mermi göstergesi
+const bulletElement = document.createElement('div');
+bulletElement.style.position = 'absolute';
+bulletElement.style.top = '40px';
+bulletElement.style.right = '10px';
+bulletElement.style.color = 'white';
+bulletElement.style.fontSize = '24px';
+bulletElement.innerHTML = "Bullets: " + bullets;
+document.body.appendChild(bulletElement);
+
+// Mermi sayısını güncelleme fonksiyonu
+function updateBullets(amount) {
+    bullets += amount;
+    if (bullets > maxBullets) bullets = maxBullets; // Maksimum sınırı aşmasın
+    bulletElement.innerHTML = "Bullets: " + bullets;
+}
+
 // Puan göstergesi
 let score = 0;
 const scoreElement = document.createElement('div');
@@ -229,51 +250,57 @@ window.addEventListener('resize', function() {
     camera.updateProjectionMatrix();
 });
 
+// Ateşleme sırasında mermi kontrolü ekle
 window.addEventListener('click', function(event) {
-    const sphereGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-    const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    if (bullets > 0) {
+        // Sadece mermi varsa ateş et
+        bullets--;
+        updateBullets(0); // Mermi sayısını güncelle
 
-    sphere.position.set(cube.position.x, cube.position.y, cube.position.z);
+        const sphereGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
 
-    const direction = new THREE.Vector3();
-    cube.getWorldDirection(direction);
-    direction.y = 0;
-    direction.negate();
-    direction.normalize();
+        sphere.position.set(cube.position.x, cube.position.y, cube.position.z);
 
-    const speed = 0.5;
-    sphere.userData.velocity = direction.multiplyScalar(speed);
+        const direction = new THREE.Vector3();
+        cube.getWorldDirection(direction);
+        direction.y = 0;
+        direction.negate();
+        direction.normalize();
 
-    scene.add(sphere);
+        const speed = 0.5;
+        sphere.userData.velocity = direction.multiplyScalar(speed);
 
-    function updateSphere() {
-        sphere.position.add(sphere.userData.velocity);
-        
-        if (sphere.position.length() > 100) {
-            scene.remove(sphere);
-        } else {
-            // Topun düşmanlarla çarpışmasını kontrol et
-            enemies.forEach((enemy, index) => {
-                if (sphere.position.distanceTo(enemy.position) < 1) {
-                    enemy.health -= 20; // Düşmanın canını azalt
-                    console.log("Enemy Hit! Current Health:", enemy.health);
-                    scene.remove(sphere); // Topu kaldır
+        scene.add(sphere);
 
-                    // Eğer düşmanın canı sıfıra düşerse yok et
-                    if (enemy.health <= 0) {
-                        scene.remove(enemy); // Düşmanı kaldır
-                        enemies.splice(index, 1); // Düşmanı diziden kaldır
-                        console.log("Enemy defeated!");
+        function updateSphere() {
+            sphere.position.add(sphere.userData.velocity);
+
+            if (sphere.position.length() > 100) {
+                scene.remove(sphere);
+            } else {
+                enemies.forEach((enemy, index) => {
+                    if (sphere.position.distanceTo(enemy.position) < 1) {
+                        enemy.health -= 20;
+                        scene.remove(sphere);
+
+                        if (enemy.health <= 0) {
+                            scene.remove(enemy);
+                            updateBullets(5); // 5 mermi ekle
+                            enemies.splice(index, 1);
+                        }
+                        return;
                     }
-                    return; // Çarpışma gerçekleştiğinde döngüyü kır
-                }
-            });
+                });
 
-            requestAnimationFrame(updateSphere); // Devam et
+                requestAnimationFrame(updateSphere);
+            }
         }
+        updateSphere();
+    } else {
+        console.log("No bullets left!"); // Mermi bittiğinde bildirim
     }
-    updateSphere();
 });
 
 // Can göstergesi
@@ -309,7 +336,9 @@ function restartGame() {
 
     // Canı sıfırlama
     health = 100; // Başlangıç canına geri döndür
+    bullets = 10;
     healthElement.innerHTML = "Health: " + health;
+    bulletElement.innerHTML = "Bullets: " + bullets;
 
     // Oyun nesnelerini yeniden oluşturmak için gerekli kodlar buraya eklenebilir
     // Örneğin: createEnemy() veya diğer başlangıç fonksiyonları
