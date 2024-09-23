@@ -7,4 +7,5 @@ Features<br><br>
 
 controls <br><br>
 -w,a,s,d or arrow keys for movement<br>
+-space for jumping<br>
 -mouse left click for fire<br>
