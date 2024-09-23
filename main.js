@@ -9,6 +9,12 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// Zıplama ile ilgili değişkenler
+let isJumping = false;
+let velocityY = 0; // Zıplama hızı
+const gravity = -0.005; // Yerçekimi kuvvetini azalt
+const jumpStrength = 0.15; // Zıplama kuvvetini biraz düşür
+
 // Puan göstergesi
 let score = 0;
 const scoreElement = document.createElement('div');
@@ -66,13 +72,18 @@ const keys = {
     KeyW: false,
     KeyS: false,
     KeyA: false,
-    KeyD: false
+    KeyD: false,
+    Space: false // Zıplama tuşu
 };
 
 // Klavye tuşuna basıldığında
 window.addEventListener('keydown', function(event) {
     if (event.code in keys) {
         keys[event.code] = true;
+    }
+    if (event.code === 'Space' && !isJumping) {
+        isJumping = true;
+        velocityY = jumpStrength;
     }
 });
 
@@ -186,6 +197,18 @@ function animate() {
         addFootprint(cube.position);
     }
 
+    if (isJumping) {
+        velocityY += gravity; // Yerçekimi etkisi
+        cube.position.y += velocityY; // Karakteri yükselt
+
+        // Karakter zemine düştü mü kontrol et
+        if (cube.position.y <= 0.5) {
+            cube.position.y = 0.5; // Zemin seviyesine geri döndür
+            isJumping = false; // Zıplama işlemi sona erdi
+            velocityY = 0; // Hız sıfırlanmalı
+        }
+    }
+    
     checkCollision(); // Çarpışmayı kontrol et
 
     // Kamera bloğu takip etsin
@@ -301,10 +324,37 @@ function createEnemy() {
     const enemy = new THREE.Mesh(enemyGeometry, enemyMaterial);
     enemy.position.set(Math.random() * 50 - 25, 0.5, Math.random() * 50 - 25);
     enemy.health = 50; // Düşmanın canı
+    enemy.isJumping = false; // Düşmanın zıplama durumu
+    enemy.velocityY = 0; // Zıplama hızı
     scene.add(enemy);
     enemies.push(enemy);
     
     moveEnemy(enemy); // Düşmanı rastgele hareket ettir
+    startEnemyJump(enemy);
+}
+
+function startEnemyJump(enemy) {
+    // Her düşmanın rastgele bir süre sonra zıplaması için bir interval ayarlayalım
+    setInterval(() => {
+        if (!enemy.isJumping) {
+            enemy.isJumping = true;
+            enemy.velocityY = 0.15; // Düşmanın zıplama kuvveti
+        }
+    }, Math.random() * 5000 + 2000); // 2-7 saniye arasında rastgele bir zıplama süresi
+}
+
+function updateEnemyJump(enemy) {
+    if (enemy.isJumping) {
+        enemy.velocityY += gravity; // Yerçekimi etkisi
+        enemy.position.y += enemy.velocityY; // Düşmanı yükselt veya alçalt
+
+        // Düşman zemine düştü mü kontrol et
+        if (enemy.position.y <= 0.5) {
+            enemy.position.y = 0.5; // Zemin seviyesine geri döndür
+            enemy.isJumping = false; // Zıplama işlemi sona erdi
+            enemy.velocityY = 0; // Hızı sıfırla
+        }
+    }
 }
 
 // Düşmanları rastgele hareket ettirmek için
@@ -325,6 +375,9 @@ function moveEnemy(enemy) {
         // Düşman sahnenin sınırlarını aşmamalı
         enemy.position.x = Math.max(-50, Math.min(50, enemy.position.x));
         enemy.position.z = Math.max(-50, Math.min(50, enemy.position.z));
+
+        // Düşmanın zıplama durumunu kontrol et
+        updateEnemyJump(enemy);
 
         requestAnimationFrame(updateEnemy); // Devam et
     }
