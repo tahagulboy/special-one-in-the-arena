@@ -1,10 +1,10 @@
 <h1>Project Name: unknown</h1>
 
-Features
--collect balls and earn points
--kill square enemies
--try to dont die
+Features<br><br>
+-collect balls and earn points<br>
+-kill square enemies<br>
+-try to dont die<br>
 
-controls 
--w,a,s,d or arrow keys for movement
--mouse left click for fire
+controls <br><br>
+-w,a,s,d or arrow keys for movement<br>
+-mouse left click for fire<br>
