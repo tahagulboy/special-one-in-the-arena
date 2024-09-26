@@ -94,6 +94,7 @@ const keys = {
     KeyS: false,
     KeyA: false,
     KeyD: false,
+    KeyQ: false, // Atılma tuşu
     Space: false // Zıplama tuşu
 };
 
@@ -105,6 +106,9 @@ window.addEventListener('keydown', function(event) {
     if (event.code === 'Space' && !isJumping) {
         isJumping = true;
         velocityY = jumpStrength;
+    }
+    if (event.code === 'KeyQ') {
+        dash(); // q tuşuna basıldığında atılma fonksiyonunu çağır
     }
 });
 
@@ -126,7 +130,7 @@ function addFootprint(position) {
 
     setTimeout(() => {
         scene.remove(footprint);
-    }, 2000);
+    }, 750);
 }
 
 // Yanıp sönme efekti için renk değiştirici
@@ -509,3 +513,27 @@ restartButton.addEventListener('click', () => {
     gameOverMenu.style.display = 'none'; // Menüyü gizle
     restartGame(); // Oyunu yeniden başlat
 });
+
+function dash() {
+    const dashDistance = 3; // Atılma mesafesi
+    const dashSpeed = 0.5; // Atılma hızı
+
+    // Karakterin şu anki yönünü belirleyelim
+    const direction = new THREE.Vector3();
+    cube.getWorldDirection(direction);
+    direction.y = 0; // Yüksekliği sıfırla, sadece yatay düzlemde ilerle
+    direction.normalize();
+
+    direction.negate();
+
+    // Karakteri belirtilen mesafede ileri taşı
+    const dashPosition = direction.multiplyScalar(dashDistance);
+    const dashInterval = setInterval(() => {
+        cube.position.addScaledVector(direction, dashSpeed);
+    }, 16); // Her 16 ms'de bir güncelle (60 FPS)
+
+    // Belirli bir süre sonra atılmayı durdur
+    setTimeout(() => {
+        clearInterval(dashInterval);
+    }, 200); // 200 ms süresince atılma gerçekleşsin
+}
