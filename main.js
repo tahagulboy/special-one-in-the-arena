@@ -321,7 +321,7 @@ function updateHealth(amount) {
     // Can 0'dan az olamaz
     if (health <= 0) {
         console.log("Game Over");
-        restartGame(); // Oyun yeniden başlatma fonksiyonu
+        showGameOverMenu(); // Oyun bittiğinde menüyü göster
     }
 }
 
@@ -337,8 +337,10 @@ function restartGame() {
     // Canı sıfırlama
     health = 100; // Başlangıç canına geri döndür
     bullets = 10;
+    score = 0;
     healthElement.innerHTML = "Health: " + health;
     bulletElement.innerHTML = "Bullets: " + bullets;
+    scoreElement.innerHTML = "Score: " + score;
 
     // Oyun nesnelerini yeniden oluşturmak için gerekli kodlar buraya eklenebilir
     // Örneğin: createEnemy() veya diğer başlangıç fonksiyonları
@@ -467,4 +469,43 @@ function enemyAttack() {
 // Düşmanların top fırlatmasını her 2 saniyede bir sağlamak için
 setInterval(enemyAttack, 2000);
 
+// Game Over menüsü oluşturma
+const gameOverMenu = document.createElement('div');
+gameOverMenu.style.position = 'absolute';
+gameOverMenu.style.top = '50%';
+gameOverMenu.style.left = '50%';
+gameOverMenu.style.transform = 'translate(-50%, -50%)';
+gameOverMenu.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+gameOverMenu.style.padding = '20px';
+gameOverMenu.style.color = 'white';
+gameOverMenu.style.fontSize = '24px';
+gameOverMenu.style.textAlign = 'center';
+gameOverMenu.style.display = 'none'; // Başlangıçta gizli
+document.body.appendChild(gameOverMenu);
 
+// Oyun bitti mesajı
+const gameOverMessage = document.createElement('div');
+gameOverMessage.innerHTML = 'Öldün!';
+gameOverMenu.appendChild(gameOverMessage);
+
+// Skor göstergesi
+const scoreMessage = document.createElement('div');
+scoreMessage.style.marginTop = '20px';
+gameOverMenu.appendChild(scoreMessage);
+
+// Tekrar Oyna butonu
+const restartButton = document.createElement('button');
+restartButton.innerHTML = 'Tekrar Oyna';
+restartButton.style.fontSize = '24px';
+restartButton.style.marginTop = '10px';
+gameOverMenu.appendChild(restartButton);
+
+function showGameOverMenu() {
+    gameOverMenu.style.display = 'block'; // Menü görünür yap
+    scoreMessage.innerHTML = 'Toplam Skor: ' + score; // Skoru güncelle
+}
+
+restartButton.addEventListener('click', () => {
+    gameOverMenu.style.display = 'none'; // Menüyü gizle
+    restartGame(); // Oyunu yeniden başlat
+});
