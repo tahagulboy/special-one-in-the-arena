@@ -173,6 +173,8 @@ function checkCollision() {
     }
 }
 
+const mapBoundary = 50; // Set your desired boundary limits
+
 // Animasyon döngüsü
 function animate() {
     requestAnimationFrame(animate);
@@ -186,39 +188,39 @@ function animate() {
     // İleri + sağ hareketi
     if (movingForward && movingRight) {
         cube.rotation.y = -Math.PI / 4;
-        cube.position.x += moveSpeed / Math.sqrt(2);
-        cube.position.z -= moveSpeed / Math.sqrt(2);
+        cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x + moveSpeed / Math.sqrt(2))); // Limit X
+        cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z - moveSpeed / Math.sqrt(2))); // Limit Z
         addFootprint(cube.position);
     } else if (movingForward && movingLeft) {
         cube.rotation.y = Math.PI / 4;
-        cube.position.x -= moveSpeed / Math.sqrt(2);
-        cube.position.z -= moveSpeed / Math.sqrt(2);
+        cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x - moveSpeed / Math.sqrt(2))); // Limit X
+        cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z - moveSpeed / Math.sqrt(2))); // Limit Z
         addFootprint(cube.position);
     } else if (movingBackward && movingRight) {
         cube.rotation.y = -3 * Math.PI / 4;
-        cube.position.x += moveSpeed / Math.sqrt(2);
-        cube.position.z += moveSpeed / Math.sqrt(2);
+        cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x + moveSpeed / Math.sqrt(2))); // Limit X
+        cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z + moveSpeed / Math.sqrt(2))); // Limit Z
         addFootprint(cube.position);
     } else if (movingBackward && movingLeft) {
         cube.rotation.y = 3 * Math.PI / 4;
-        cube.position.x -= moveSpeed / Math.sqrt(2);
-        cube.position.z += moveSpeed / Math.sqrt(2);
+        cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x - moveSpeed / Math.sqrt(2))); // Limit X
+        cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z + moveSpeed / Math.sqrt(2))); // Limit Z
         addFootprint(cube.position);
     } else if (movingForward) {
         cube.rotation.y = 0;
-        cube.position.z -= moveSpeed;
+        cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z - moveSpeed)); // Limit Z
         addFootprint(cube.position);
     } else if (movingBackward) {
         cube.rotation.y = Math.PI;
-        cube.position.z += moveSpeed;
+        cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z + moveSpeed)); // Limit Z
         addFootprint(cube.position);
     } else if (movingRight) {
         cube.rotation.y = -Math.PI / 2;
-        cube.position.x += moveSpeed;
+        cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x + moveSpeed)); // Limit X
         addFootprint(cube.position);
     } else if (movingLeft) {
         cube.rotation.y = Math.PI / 2;
-        cube.position.x -= moveSpeed;
+        cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x - moveSpeed)); // Limit X
         addFootprint(cube.position);
     }
 
