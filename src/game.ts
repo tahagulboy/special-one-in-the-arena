@@ -304,11 +304,11 @@ export async function game(){
                 } else {
                     enemies.forEach((enemy, index) => {
                         if (sphere.position.distanceTo(enemy.position) < 1) {
-                            enemy.health -= 20;
-                            console.log("Hit! Current Enemy Health:", enemy.health); // Hata ayıklama
+                            enemy.userData.health -= 20;
+                            console.log("Hit! Current Enemy Health:", enemy.userData.health); // Hata ayıklama
                             scene.remove(sphere);
 
-                            if (enemy.health <= 0) {
+                            if (enemy.userData.health <= 0) {
                                 scene.remove(enemy);
                                 updateBullets(5); // 5 mermi ekle
                                 enemies.splice(index, 1);
