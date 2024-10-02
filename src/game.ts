@@ -5,7 +5,6 @@ import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 export async function game(){
     const loader = new GLTFLoader();
     let mixer: THREE.AnimationMixer;  // Animasyon karıştırıcısı
-    let walkAction = THREE.AnimationAction;
     const clock: THREE.Clock = new THREE.Clock();  // Animasyon zamanlayıcı
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath( 'https://www.gstatic.com/draco/versioned/decoders/1.5.7/' );
