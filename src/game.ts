@@ -90,7 +90,6 @@ export async function game(){
         const clip = THREE.AnimationClip.findByName(clips, 'mixamo.com'); // 'dance' animasyonu
         let walkAction = mixer.clipAction(clip);
         walkAction.play();
-        cube.rotation.y = -Math.PI; // Y ekseninde 180 derece döndür
     }, undefined, (error) => {
         console.error('An error happened', error);
     });
