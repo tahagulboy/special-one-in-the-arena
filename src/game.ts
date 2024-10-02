@@ -4,7 +4,9 @@ import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export async function game(){
     const loader = new GLTFLoader();
-
+    let mixer: THREE.AnimationMixer;  // Animasyon karıştırıcısı
+    let walkAction = THREE.AnimationAction;
+    const clock: THREE.Clock = new THREE.Clock();  // Animasyon zamanlayıcı
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath( 'https://www.gstatic.com/draco/versioned/decoders/1.5.7/' );
     loader.setDRACOLoader( dracoLoader );
@@ -12,6 +14,11 @@ export async function game(){
     // Sahne ve Kamera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    // Işıklar ve zemin
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 10, 7.5);
+    scene.add(light);
 
     // Renderer
     const renderer = new THREE.WebGLRenderer();
@@ -64,20 +71,30 @@ export async function game(){
     scene.add(plane);    
 
     let cube = new THREE.Object3D();
-
+    
     loader.load(
         '/character.glb',
         function ( gltf: GLTF ) {
-            cube = gltf.scene;  
+            cube = gltf.scene; 
             cube.position.y = 0.5; // Blok zeminin üstünde olsun
-            scene.add(cube);          
+            cube.scale.set(0.01, 0.01, 0.01); // Modelin ölçeğini ayarla (x, y, z)
+            scene.add(cube);    
         },
         undefined, 
         function (error) {
             console.error('An error happened during loading', error); // Handle errors
         });
 
-       
+    loader.load('walking.glb', (gltf) => {
+        const clips = gltf.animations;        
+        mixer = new THREE.AnimationMixer(cube);
+        const clip = THREE.AnimationClip.findByName(clips, 'mixamo.com'); // 'dance' animasyonu
+        let walkAction = mixer.clipAction(clip);
+        walkAction.play();
+        cube.rotation.y = -Math.PI; // Y ekseninde 180 derece döndür
+    }, undefined, (error) => {
+        console.error('An error happened', error);
+    });
     // Rastgele yuvarlak bloklar oluşturma
     const spheres: THREE.Mesh[] = [];
     // Rastgele toplar oluşturma
@@ -133,6 +150,7 @@ export async function game(){
     window.addEventListener('keyup', function(event) {
         if (event.code in keys) {
             keys[event.code as keyof typeof keys] = false;
+            // walk.stop();
         }
     });
 
@@ -195,6 +213,11 @@ export async function game(){
     // Animasyon döngüsü
     function animate() {
         requestAnimationFrame(animate);
+
+        if (mixer) {
+            let delta = clock.getDelta();
+            mixer.update(delta);
+        }
 
         // Hareket mantığı
         let movingForward = keys.ArrowUp || keys.KeyW;
@@ -554,5 +577,4 @@ export async function game(){
             clearInterval(dashInterval);
         }, 200); // 200 ms süresince atılma gerçekleşsin
     }
-
 }
