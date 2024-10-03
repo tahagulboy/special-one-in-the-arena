@@ -5,6 +5,8 @@ import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 export async function game(){
     const loader = new GLTFLoader();
     let mixer: THREE.AnimationMixer;  // Animasyon karıştırıcısı
+    let animations: THREE.AnimationClip[];
+    let walkAction: THREE.AnimationAction;
     const clock: THREE.Clock = new THREE.Clock();  // Animasyon zamanlayıcı
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath( 'https://www.gstatic.com/draco/versioned/decoders/1.5.7/' );
@@ -15,7 +17,7 @@ export async function game(){
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
     // Işıklar ve zemin
-    const light = new THREE.DirectionalLight(0xffffff, 1);
+    const light = new THREE.AmbientLight(0xffffff, 1);
     light.position.set(5, 10, 7.5);
     scene.add(light);
 
@@ -70,26 +72,15 @@ export async function game(){
     scene.add(plane);    
 
     let cube = new THREE.Object3D();
-    
-    loader.load(
-        '/character.glb',
-        function ( gltf: GLTF ) {
-            cube = gltf.scene; 
-            cube.position.y = 0.5; // Blok zeminin üstünde olsun
-            cube.scale.set(0.01, 0.01, 0.01); // Modelin ölçeğini ayarla (x, y, z)
-            scene.add(cube);    
-        },
-        undefined, 
-        function (error) {
-            console.error('An error happened during loading', error); // Handle errors
-        });
-
-    loader.load('walking.glb', (gltf) => {
-        const clips = gltf.animations;        
+    loader.load('/character.glb', (gltf) => {
+        cube = gltf.scene; 
+        cube.position.y = 0.5; // Blok zeminin üstünde olsun
+        cube.scale.set(1, 1, 1); // Modelin ölçeğini ayarla (x, y, z)
+        scene.add(cube);    
+        animations = gltf.animations;        
         mixer = new THREE.AnimationMixer(cube);
-        const clip = THREE.AnimationClip.findByName(clips, 'mixamo.com'); // 'dance' animasyonu
-        let walkAction = mixer.clipAction(clip);
-        walkAction.play();
+        const clip = THREE.AnimationClip.findByName(animations, 'walk'); 
+        walkAction = mixer.clipAction(clip);
     }, undefined, (error) => {
         console.error('An error happened', error);
     });
@@ -148,7 +139,7 @@ export async function game(){
     window.addEventListener('keyup', function(event) {
         if (event.code in keys) {
             keys[event.code as keyof typeof keys] = false;
-            // walk.stop();
+            walkAction.stop();
         }
     });
 
@@ -229,37 +220,45 @@ export async function game(){
             cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x - moveSpeed / Math.sqrt(2))); // Limit X
             cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z + moveSpeed / Math.sqrt(2))); // Limit Z
             addFootprint(cube.position);
+            walkAction.play();
         } else if (movingForward && movingLeft) {
             cube.rotation.y = +Math.PI / 4;
             cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x + moveSpeed / Math.sqrt(2))); // Limit X
             cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z + moveSpeed / Math.sqrt(2))); // Limit Z
             addFootprint(cube.position);
+            walkAction.play();
         } else if (movingBackward && movingRight) {
             cube.rotation.y = -3 * Math.PI / 4;
             cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x - moveSpeed / Math.sqrt(2))); // Limit X
             cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z - moveSpeed / Math.sqrt(2))); // Limit Z
             addFootprint(cube.position);
+            walkAction.play();
         } else if (movingBackward && movingLeft) {
             cube.rotation.y = 3 * Math.PI / 4;
             cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x + moveSpeed / Math.sqrt(2))); // Limit X
             cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z - moveSpeed / Math.sqrt(2))); // Limit Z
             addFootprint(cube.position);
+            walkAction.play();
         } else if (movingForward) {
             cube.rotation.y = 0;
             cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z + moveSpeed)); // Limit Z
             addFootprint(cube.position);
+            walkAction.play();
         } else if (movingBackward) {
             cube.rotation.y = Math.PI;
             cube.position.z = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.z - moveSpeed)); // Limit Z
             addFootprint(cube.position);
+            walkAction.play();
         } else if (movingRight) {
             cube.rotation.y = - Math.PI / 2;
             cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x - moveSpeed)); // Limit X
             addFootprint(cube.position);
+            walkAction.play();
         } else if (movingLeft) {
             cube.rotation.y = Math.PI / 2;
             cube.position.x = Math.max(-mapBoundary, Math.min(mapBoundary, cube.position.x + moveSpeed)); // Limit X
             addFootprint(cube.position);
+            walkAction.play();
         }
 
         if (isJumping) {
