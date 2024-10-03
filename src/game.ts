@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { DRACOLoader } from 'three/examples/jsm/Addons.js';
-import {GLTF, GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export async function game(){
     const loader = new GLTFLoader();
@@ -75,7 +75,7 @@ export async function game(){
     loader.load('/character.glb', (gltf) => {
         cube = gltf.scene; 
         cube.position.y = 0.5; // Blok zeminin üstünde olsun
-        cube.scale.set(1, 1, 1); // Modelin ölçeğini ayarla (x, y, z)
+        cube.scale.set(2, 2, 2); // Modelin ölçeğini ayarla (x, y, z)
         scene.add(cube);    
         animations = gltf.animations;        
         mixer = new THREE.AnimationMixer(cube);
